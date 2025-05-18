@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vanilla JS Virtualized List</title>
+  <style>
+    /* The scroll container */
+    #scroll-container {
+      height: 300px;
+      /* Fixed height for the viewport */
+      overflow-y: auto;
+      /* Enable vertical scrolling */
+      border: 1px solid #ccc;
+      position: relative;
+    }
+
+    /* The inner container that virtually holds all items */
+    #list {
+      position: relative;
+      width: 100%;
+    }
+
+    /* Each item will be absolutely positioned within the list */
+    .item {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 35px;
+      /* Fixed item height */
+      border-bottom: 1px solid #eee;
+      box-sizing: border-box;
+      padding: 5px;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="scroll-container">
+    <div id="list"></div>
+  </div>
+
+  <script>
+    // Create an array of 1,000 items
+    const data = Array.from({ length: 100000 }, (_, index) => 'Item ' + (index + 1));
+
+    // Get references to DOM elements
+    const container = document.getElementById('scroll-container');
+    const list = document.getElementById('list');
+
+    const itemHeight = 35;
+    const containerHeight = container.clientHeight;
+    const totalItems = data.length;
+    const totalHeight = totalItems * itemHeight;
+    // Set the height of the inner container to simulate all items existing
+    list.style.height = totalHeight + 'px';
+
+    // Calculate how many items to display at once with a little buffer
+    const buffer = 5; // extra items rendered to smooth scrolling
+    const visibleCount = Math.ceil(containerHeight / itemHeight) + buffer;
+
+    // Pre-create DOM nodes for visible items
+    let items = [];
+    for (let i = 0; i < visibleCount; i++) {
+      const div = document.createElement('div');
+      div.className = 'item';
+      list.appendChild(div);
+      items.push(div);
+    }
+
+    function render() {
+      // Determine scrolling offset
+      const scrollTop = container.scrollTop;
+      // Find the starting index based on scroll position
+      const startIndex = Math.floor(scrollTop / itemHeight);
+
+      // Loop through our pre-created items and update their positions and content
+      for (let i = 0; i < visibleCount; i++) {
+        const index = startIndex + i;
+        const item = items[i];
+        if (index < totalItems) {
+          // Set the vertical position of the item
+          item.style.top = (index * itemHeight) + 'px';
+          // Update the content to match data
+          item.textContent = data[index];
+          item.style.display = 'block';
+        } else {
+          // Hide items that don't have data (e.g., when near the end of the list)
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Optimize scroll event handling with requestAnimationFrame
+    let ticking = false;
+    container.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          render();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Render initially
+    render();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Incremental Rendering with Intersection Observer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+    }
+
+    /* Each section acts as a placeholder for heavy content */
+    .lazy-section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin-bottom: 20px;
+      min-height: 200px;
+      /* Reserve vertical space */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      background: #f0f0f0;
+      transition: background 0.3s ease-out;
+    }
+
+    /* Style applied after the content is loaded */
+    .loaded {
+      background: #d0ffd0;
+      color: #333;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Create several placeholder sections that will be incrementally rendered -->
+  <div class="lazy-section" data-section="1">Section 1: Loading...</div>
+  <div class="lazy-section" data-section="2">Section 2: Loading...</div>
+  <div class="lazy-section" data-section="3">Section 3: Loading...</div>
+  <div class="lazy-section" data-section="4">Section 4: Loading...</div>
+  <div class="lazy-section" data-section="5">Section 5: Loading...</div>
+  <div class="lazy-section" data-section="6">Section 1: Loading...</div>
+  <div class="lazy-section" data-section="7">Section 2: Loading...</div>
+  <div class="lazy-section" data-section="8">Section 3: Loading...</div>
+  <div class="lazy-section" data-section="9">Section 4: Loading...</div>
+  <div class="lazy-section" data-section="10">Section 10: Loading...</div>
+  <div class="lazy-section" data-section="11">Section 11: Loading...</div>
+  <div class="lazy-section" data-section="12">Section 12: Loading...</div>
+  <div class="lazy-section" data-section="13">Section 13: Loading...</div>
+  <div class="lazy-section" data-section="14">Section 14: Loading...</div>
+  <div class="lazy-section" data-section="15">Section 15: Loading...</div>
+  <div class="lazy-section" data-section="16">Section 16: Loading...</div>
+  <div class="lazy-section" data-section="17">Section 17: Loading...</div>
+  <div class="lazy-section" data-section="18">Section 18: Loading...</div>
+  <div class="lazy-section" data-section="19">Section 19: Loading...</div>
+  <div class="lazy-section" data-section="20">Section 20: Loading...</div>
+  <div class="lazy-section" data-section="21">Section 21: Loading...</div>
+  <div class="lazy-section" data-section="22">Section 22: Loading...</div>
+  <div class="lazy-section" data-section="23">Section 23: Loading...</div>
+  <div class="lazy-section" data-section="24">Section 24: Loading...</div>
+  <div class="lazy-section" data-section="25">Section 25: Loading...</div>
+
+  <script>
+    // Select all elements with the "lazy-section" class
+    const sections = document.querySelectorAll('.lazy-section');
+
+    // Create an Intersection Observer that watches each section
+    const observer = new IntersectionObserver((entries, observerInstance) => {
+      entries.forEach(entry => {
+        // When a section becomes at least 10% visible
+        if (entry.isIntersecting) {
+          // Load the content for this section (simulate an asynchronous load)
+          loadSectionContent(entry.target);
+          // Once loaded, unobserve the section
+          observerInstance.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,       // Use the viewport as the container
+      threshold: 0.1    // Trigger when at least 10% of the section is visible
+    });
+
+    // Observe each section
+    sections.forEach(section => observer.observe(section));
+
+    // Function to simulate loading content for a section
+    function loadSectionContent(section) {
+      // Simulate an asynchronous operation (e.g., fetching data)
+      setTimeout(() => {
+        // Update the section content once "loaded"
+        section.textContent = `Section ${section.getAttribute('data-section')} Content Loaded!`;
+        section.classList.add('loaded');
+      }, 500); // using 500ms delay for demonstration
+    }
+  </script>
+</body>
+
+</html>
